@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
@@ -42,31 +42,28 @@ export default function SessionPage() {
     }
 
     if (session.status !== 'active') {
-      // If session is already completed or abandoned, redirect
       router.replace('/');
     }
 
     setTimeRemaining(session.duration - session.timeElapsed);
 
   }, [session, router]);
-  
-  const handleTick = () => {
-    setTimeRemaining(prev => {
-        const newTime = prev - 1;
-        if (session) {
-            updateSession({timeElapsed: session.duration - newTime});
-        }
-        if (newTime <= 0) {
-          clearInterval(timerRef.current!);
-          completeSession();
-          router.replace('/');
-        }
-        return newTime;
-      });
-  }
+
+  const handleTick = useCallback(() => {
+    setTimeRemaining(prev => prev - 1);
+  }, []);
 
   useEffect(() => {
-    if (session && session.status === 'active' && !isPaused) {
+    if(session && timeRemaining <= 0) {
+      completeSession();
+      router.replace('/');
+    } else if (session && timeRemaining > 0) {
+      updateSession({ timeElapsed: session.duration - timeRemaining });
+    }
+  }, [timeRemaining, session, completeSession, router, updateSession]);
+
+  useEffect(() => {
+    if (session && session.status === 'active' && !isPaused && timeRemaining > 0) {
       timerRef.current = setInterval(handleTick, 1000);
     } else {
       if (timerRef.current) clearInterval(timerRef.current);
@@ -74,7 +71,8 @@ export default function SessionPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [session, isPaused]);
+  }, [session, isPaused, handleTick, timeRemaining]);
+
 
   useEffect(() => {
     const getMessage = async () => {
@@ -140,7 +138,7 @@ export default function SessionPage() {
     router.replace('/');
   };
 
-  const progress = (session.timeElapsed / session.duration) * 100;
+  const progress = session ? (session.timeElapsed / session.duration) * 100 : 0;
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-4">
