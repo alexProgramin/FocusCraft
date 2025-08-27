@@ -38,7 +38,8 @@ export default function RewardsPage() {
         >
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            {t('addReward')}
+            <span className="hidden md:inline">{t('addReward')}</span>
+            <span className="inline md:hidden">{t('addReward')}</span>
           </Button>
         </RewardForm>
       </div>
@@ -52,7 +53,7 @@ export default function RewardsPage() {
           </CardHeader>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
           {rewards.map((reward) => (
             <Card key={reward.id} className={`flex flex-col ${!reward.active ? 'opacity-60 bg-muted/50' : ''}`}>
               <CardHeader>
