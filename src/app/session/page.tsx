@@ -23,12 +23,12 @@ import {
 
 export default function SessionPage() {
   const router = useRouter();
-  const { state, updateSession, completeSession, abandonSession } = useAppContext();
+  const { state, updateSession, completeSession, abandonSession, t } = useAppContext();
   const { session, settings } = state;
   const { toast } = useToast();
 
   const [timeRemaining, setTimeRemaining] = useState(session?.duration || 0);
-  const [motivationalMessage, setMotivationalMessage] = useState("Let's get started! You can do this.");
+  const [motivationalMessage, setMotivationalMessage] = useState(t('letsGetStarted'));
   const [isPaused, setIsPaused] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -105,8 +105,8 @@ export default function SessionPage() {
         if (timerRef.current) clearInterval(timerRef.current);
 
         toast({
-            title: "Session Paused",
-            description: "Come back soon or the session will be abandoned.",
+            title: t('sessionPausedToastTitle'),
+            description: t('sessionPausedToastDescription'),
             variant: "destructive"
         })
 
@@ -128,7 +128,7 @@ export default function SessionPage() {
       if (messageTimerRef.current) clearInterval(messageTimerRef.current);
       if(pauseRef.current) clearTimeout(pauseRef.current);
     };
-  }, [settings.strictMode, session, abandonSession, router, toast]);
+  }, [settings.strictMode, session, abandonSession, router, toast, t]);
 
 
   if (!session) {
@@ -146,9 +146,9 @@ export default function SessionPage() {
     <div className="flex flex-col items-center justify-center h-full text-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold tracking-tighter">Stay Focused</CardTitle>
+          <CardTitle className="text-3xl font-bold tracking-tighter">{t('stayFocused')}</CardTitle>
           <CardDescription className="min-h-[40px] flex items-center justify-center">
-            {isPaused ? "Session paused. Return to the app to continue." : motivationalMessage}
+            {isPaused ? t('sessionPaused') : motivationalMessage}
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-8">
@@ -163,19 +163,19 @@ export default function SessionPage() {
             <AlertDialogTrigger asChild>
               <Button variant="destructive" size="lg" className="w-full">
                 <AlertTriangle className="mr-2 h-4 w-4" />
-                Abandon Session
+                {t('abandonSession')}
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                <AlertDialogTitle>{t('abandonSessionConfirmationTitle')}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  If you abandon this session, you will lose {settings.penaltyAmount} coins. You can't undo this action.
+                  {t('abandonSessionConfirmationMessage', { penaltyAmount: settings.penaltyAmount })}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Keep Focusing</AlertDialogCancel>
-                <AlertDialogAction onClick={handleAbandon}>Abandon</AlertDialogAction>
+                <AlertDialogCancel>{t('keepFocusing')}</AlertDialogCancel>
+                <AlertDialogAction onClick={handleAbandon}>{t('abandon')}</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>

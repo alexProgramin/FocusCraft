@@ -4,6 +4,7 @@ import { useAppContext } from "@/contexts/AppContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpCircle, ArrowDownCircle, ShoppingCart, History as HistoryIcon, Coins } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { es, enUS } from 'date-fns/locale'
 
 const transactionIcons = {
   session: <ArrowUpCircle className="h-6 w-6 text-green-500" />,
@@ -18,19 +19,20 @@ const transactionColors = {
 };
 
 export default function HistoryPage() {
-  const { state } = useAppContext();
-  const { transactions } = state;
+  const { state, t } = useAppContext();
+  const { transactions, settings } = state;
+  const locale = settings.language === 'es' ? es : enUS;
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold tracking-tighter">Transaction History</h1>
+      <h1 className="text-3xl font-bold tracking-tighter">{t('transactionHistory')}</h1>
       
       {transactions.length === 0 ? (
         <Card className="flex flex-col items-center justify-center p-12 text-center">
             <CardHeader>
                 <HistoryIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <CardTitle>No History Yet</CardTitle>
-                <CardDescription>Complete a session or redeem a reward to see your history.</CardDescription>
+                <CardTitle>{t('noHistoryYet')}</CardTitle>
+                <CardDescription>{t('noHistoryYetMessage')}</CardDescription>
             </CardHeader>
         </Card>
       ) : (
@@ -45,7 +47,7 @@ export default function HistoryPage() {
                             <div className="flex-grow">
                                 <p className="font-semibold">{tx.note}</p>
                                 <p className="text-sm text-muted-foreground">
-                                    {formatDistanceToNow(new Date(tx.date), { addSuffix: true })}
+                                    {formatDistanceToNow(new Date(tx.date), { addSuffix: true, locale })}
                                 </p>
                             </div>
                             <div className={`flex items-center gap-1 font-bold text-lg ${transactionColors[tx.type]}`}>

@@ -30,6 +30,7 @@ export interface Settings {
   cooldown: number; // in seconds
   strictMode: boolean;
   pin?: string;
+  language: 'en' | 'es';
 }
 
 export type SessionStatus = 'active' | 'paused' | 'completed' | 'abandoned';

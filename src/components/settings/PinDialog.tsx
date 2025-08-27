@@ -14,6 +14,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
+import { useAppContext } from '@/contexts/AppContext';
 
 interface PinDialogProps {
   hasPin: boolean;
@@ -25,6 +26,7 @@ interface PinDialogProps {
 }
 
 export default function PinDialog({ hasPin, onPinVerified, onPinSet, checkPin, setPin, children }: PinDialogProps) {
+  const { t } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
   const [pin, setPinValue] = useState('');
   const [confirmPin, setConfirmPin] = useState('');
@@ -36,26 +38,26 @@ export default function PinDialog({ hasPin, onPinVerified, onPinSet, checkPin, s
       onPinVerified();
       setIsOpen(false);
       resetState();
-      toast({ title: "Settings Unlocked" });
+      toast({ title: t('settingsUnlocked') });
     } else {
-      setError("Incorrect PIN. Please try again.");
+      setError(t('incorrectPin'));
     }
   };
 
   const handleSet = () => {
     if (pin.length < 4) {
-      setError("PIN must be at least 4 digits.");
+      setError(t('pinLengthError'));
       return;
     }
     if (pin !== confirmPin) {
-      setError("PINs do not match.");
+      setError(t('pinMismatchError'));
       return;
     }
     setPin(pin);
     onPinSet();
     setIsOpen(false);
     resetState();
-    toast({ title: "PIN has been set successfully." });
+    toast({ title: t('pinSetSuccessfully') });
   };
   
   const resetState = () => {
@@ -74,15 +76,15 @@ export default function PinDialog({ hasPin, onPinVerified, onPinSet, checkPin, s
       <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{hasPin ? "Enter PIN" : "Set a New PIN"}</DialogTitle>
+          <DialogTitle>{hasPin ? t('enterPin') : t('setNewPin')}</DialogTitle>
           <DialogDescription>
-            {hasPin ? "Enter your PIN to access settings." : "Create a 4-digit PIN to protect your settings."}
+            {hasPin ? t('enterPinToAccess') : t('createPinToProtect')}
           </DialogDescription>
         </DialogHeader>
         <div className="py-4 space-y-4">
           <Input
             type="password"
-            placeholder="PIN"
+            placeholder={t('pin')}
             value={pin}
             onChange={(e) => setPinValue(e.target.value)}
             maxLength={4}
@@ -90,7 +92,7 @@ export default function PinDialog({ hasPin, onPinVerified, onPinSet, checkPin, s
           {!hasPin && (
             <Input
               type="password"
-              placeholder="Confirm PIN"
+              placeholder={t('confirmPin')}
               value={confirmPin}
               onChange={(e) => setConfirmPin(e.target.value)}
               maxLength={4}
@@ -99,9 +101,9 @@ export default function PinDialog({ hasPin, onPinVerified, onPinSet, checkPin, s
           {error && <p className="text-sm text-destructive">{error}</p>}
         </div>
         <DialogFooter>
-          <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+          <DialogClose asChild><Button variant="outline">{t('cancel')}</Button></DialogClose>
           <Button onClick={hasPin ? handleVerify : handleSet}>
-            {hasPin ? "Unlock" : "Set PIN"}
+            {hasPin ? t('unlock') : t('setPin')}
           </Button>
         </DialogFooter>
       </DialogContent>

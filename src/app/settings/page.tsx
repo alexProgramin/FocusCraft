@@ -11,7 +11,9 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import PinDialog from "@/components/settings/PinDialog";
-import { Settings } from "lucide-react";
+import { Settings as SettingsIcon } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Language } from "@/lib/i18n";
 
 const formSchema = z.object({
   defaultDuration: z.coerce.number().int().positive(),
@@ -20,10 +22,11 @@ const formSchema = z.object({
   penaltyAmount: z.coerce.number().int().positive(),
   cooldown: z.coerce.number().int().min(0),
   strictMode: z.boolean(),
+  language: z.enum(['en', 'es']),
 });
 
 export default function SettingsPage() {
-  const { state, updateSettings, checkPin, setPin } = useAppContext();
+  const { state, updateSettings, checkPin, setPin, t } = useAppContext();
   const [isUnlocked, setIsUnlocked] = useState(!state.settings.pin);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -35,6 +38,7 @@ export default function SettingsPage() {
       penaltyAmount: state.settings.penaltyAmount,
       cooldown: state.settings.cooldown,
       strictMode: state.settings.strictMode,
+      language: state.settings.language,
     },
   });
 
@@ -52,14 +56,14 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-3xl font-bold tracking-tighter">Settings</h1>
+      <h1 className="text-3xl font-bold tracking-tighter">{t('settings')}</h1>
       
       {!isUnlocked && (
         <Card className="flex flex-col items-center justify-center p-12 text-center">
             <CardHeader>
-                <Settings className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-                <CardTitle>Settings Locked</CardTitle>
-                <CardDescription>Enter your PIN to manage application settings.</CardDescription>
+                <SettingsIcon className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+                <CardTitle>{t('settingsLocked')}</CardTitle>
+                <CardDescription>{t('settingsLockedMessage')}</CardDescription>
             </CardHeader>
             <CardContent>
                 <PinDialog
@@ -69,7 +73,7 @@ export default function SettingsPage() {
                     checkPin={checkPin}
                     setPin={setPin}
                 >
-                    <Button>Unlock Settings</Button>
+                    <Button>{t('unlockSettings')}</Button>
                 </PinDialog>
             </CardContent>
         </Card>
@@ -80,8 +84,8 @@ export default function SettingsPage() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <Card>
                 <CardHeader>
-                    <CardTitle>Session Settings</CardTitle>
-                    <CardDescription>Configure how focus sessions work.</CardDescription>
+                    <CardTitle>{t('sessionSettings')}</CardTitle>
+                    <CardDescription>{t('sessionSettingsDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                      <FormField
@@ -89,7 +93,7 @@ export default function SettingsPage() {
                         name="defaultDuration"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Default Duration (minutes)</FormLabel>
+                            <FormLabel>{t('defaultDuration')}</FormLabel>
                             <FormControl>
                                 <Input type="number" {...field} />
                             </FormControl>
@@ -102,11 +106,11 @@ export default function SettingsPage() {
                         name="completionThreshold"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Completion Threshold</FormLabel>
+                            <FormLabel>{t('completionThreshold')}</FormLabel>
                             <FormControl>
                                 <Input type="number" step="0.05" min="0.5" max="0.95" {...field} />
                             </FormControl>
-                            <FormDescription>Percentage of session to complete to get reward (e.g., 0.8 for 80%).</FormDescription>
+                            <FormDescription>{t('completionThresholdDescription')}</FormDescription>
                             <FormMessage />
                             </FormItem>
                         )}
@@ -117,9 +121,9 @@ export default function SettingsPage() {
                         render={({ field }) => (
                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                 <div className="space-y-0.5">
-                                    <FormLabel>Strict Mode</FormLabel>
+                                    <FormLabel>{t('strictMode')}</FormLabel>
                                     <FormDescription>
-                                        Penalize automatically if you leave the app.
+                                        {t('strictModeDescription')}
                                     </FormDescription>
                                 </div>
                                 <FormControl>
@@ -136,8 +140,8 @@ export default function SettingsPage() {
 
             <Card>
                 <CardHeader>
-                    <CardTitle>Coin Economy</CardTitle>
-                    <CardDescription>Adjust the rewards and penalties for sessions.</CardDescription>
+                    <CardTitle>{t('coinEconomy')}</CardTitle>
+                    <CardDescription>{t('coinEconomyDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <FormField
@@ -145,7 +149,7 @@ export default function SettingsPage() {
                         name="rewardAmount"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Reward per Session</FormLabel>
+                            <FormLabel>{t('rewardPerSession')}</FormLabel>
                             <FormControl>
                                 <Input type="number" {...field} />
                             </FormControl>
@@ -158,7 +162,7 @@ export default function SettingsPage() {
                         name="penaltyAmount"
                         render={({ field }) => (
                             <FormItem>
-                            <FormLabel>Penalty for Abandoning</FormLabel>
+                            <FormLabel>{t('penaltyForAbandoning')}</FormLabel>
                             <FormControl>
                                 <Input type="number" {...field} />
                             </FormControl>
@@ -168,12 +172,41 @@ export default function SettingsPage() {
                     />
                 </CardContent>
             </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('language')}</CardTitle>
+                    <CardDescription>{t('languageDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <FormField
+                        control={form.control}
+                        name="language"
+                        render={({ field }) => (
+                            <FormItem>
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={t('language')} />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="en">{t('english')}</SelectItem>
+                                        <SelectItem value="es">{t('spanish')}</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                </CardContent>
+            </Card>
             
-            <Button type="submit">Save Settings</Button>
+            <Button type="submit">{t('saveSettings')}</Button>
           </form>
         </Form>
       )}
-       {isUnlocked && !state.settings.pin && <div className="mt-4"><PinDialog hasPin={false} onPinSet={handlePinSet} checkPin={checkPin} setPin={setPin}><Button variant="link">Set a PIN to protect settings</Button></PinDialog></div>}
+       {isUnlocked && !state.settings.pin && <div className="mt-4"><PinDialog hasPin={false} onPinSet={handlePinSet} checkPin={checkPin} setPin={setPin}><Button variant="link">{t('setPinToProtect')}</Button></PinDialog></div>}
     </div>
   );
 }

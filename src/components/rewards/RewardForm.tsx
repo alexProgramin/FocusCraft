@@ -42,7 +42,7 @@ type RewardFormProps = {
 };
 
 export default function RewardForm({ reward, children, trigger, onClose }: RewardFormProps) {
-  const { addReward, updateReward } = useAppContext();
+  const { addReward, updateReward, t } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -95,9 +95,9 @@ export default function RewardForm({ reward, children, trigger, onClose }: Rewar
       {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{reward ? "Edit Reward" : "Add New Reward"}</DialogTitle>
+          <DialogTitle>{reward ? t('editReward') : t('addNewReward')}</DialogTitle>
           <DialogDescription>
-            {reward ? "Update the details of your reward." : "Create a new reward to motivate yourself."}
+            {reward ? t('updateRewardDetails') : t('createNewReward')}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -107,9 +107,9 @@ export default function RewardForm({ reward, children, trigger, onClose }: Rewar
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Title</FormLabel>
+                  <FormLabel>{t('title')}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g., Watch a movie" {...field} />
+                    <Input placeholder={t('titlePlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -120,9 +120,9 @@ export default function RewardForm({ reward, children, trigger, onClose }: Rewar
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description (Optional)</FormLabel>
+                  <FormLabel>{t('descriptionOptional')}</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Describe your reward..." {...field} />
+                    <Textarea placeholder={t('descriptionPlaceholder')} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -133,7 +133,7 @@ export default function RewardForm({ reward, children, trigger, onClose }: Rewar
               name="cost"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Cost (in coins)</FormLabel>
+                  <FormLabel>{t('costInCoins')}</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="25" {...field} />
                   </FormControl>
@@ -143,9 +143,9 @@ export default function RewardForm({ reward, children, trigger, onClose }: Rewar
             />
              <DialogFooter>
                 <DialogClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
+                    <Button type="button" variant="outline">{t('cancel')}</Button>
                 </DialogClose>
-                <Button type="submit">{reward ? "Save Changes" : "Add Reward"}</Button>
+                <Button type="submit">{reward ? t('saveChanges') : t('addReward')}</Button>
             </DialogFooter>
           </form>
         </Form>

@@ -3,6 +3,7 @@
 import { AppState, Reward, Settings, Session } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import React, { createContext, useContext, useEffect, useReducer } from "react";
+import { getTranslator, Language, translations } from "@/lib/i18n";
 
 const APP_STORAGE_KEY = "focuscraft.data";
 
@@ -21,6 +22,7 @@ const initialState: AppState = {
     penaltyAmount: 5,
     cooldown: 120,
     strictMode: true,
+    language: 'en',
   },
   session: null,
   hydrated: false,
@@ -41,7 +43,14 @@ type Action =
 const appReducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
     case "HYDRATE":
-      return { ...action.payload, hydrated: true };
+        const payload = action.payload;
+        // Ensure language is set, default to 'en' if not present
+        if (!payload.settings.language) {
+            payload.settings.language = 'en';
+        }
+        // Migrate old rewards without descriptions
+        payload.rewards = payload.rewards.map(r => ({...r, description: r.description || ''}))
+        return { ...payload, hydrated: true };
     case "START_SESSION":
       return {
         ...state,
@@ -61,13 +70,14 @@ const appReducer = (state: AppState, action: Action): AppState => {
         }
     case "COMPLETE_SESSION": {
       if (!state.session) return state;
+      const t = getTranslator(state.settings.language);
       const newCoins = state.wallet.coins + state.settings.rewardAmount;
       const newTransaction = {
         id: crypto.randomUUID(),
         type: "session" as const,
         amount: state.settings.rewardAmount,
         date: Date.now(),
-        note: `Completed ${state.session.duration / 60} min session`,
+        note: t('completedSessionNote', { duration: state.session.duration / 60 }),
       };
       return {
         ...state,
@@ -78,13 +88,14 @@ const appReducer = (state: AppState, action: Action): AppState => {
     }
     case "ABANDON_SESSION": {
         if (!state.session) return state;
+        const t = getTranslator(state.settings.language);
         const newCoins = Math.max(0, state.wallet.coins - state.settings.penaltyAmount);
         const newTransaction = {
           id: crypto.randomUUID(),
           type: "penalty" as const,
           amount: -state.settings.penaltyAmount,
           date: Date.now(),
-          note: `Abandoned ${state.session.duration / 60} min session`,
+          note: t('abandonedSessionNote', { duration: state.session.duration / 60 }),
         };
         return {
           ...state,
@@ -108,13 +119,14 @@ const appReducer = (state: AppState, action: Action): AppState => {
     case "REDEEM_REWARD": {
       const reward = action.payload;
       if (state.wallet.coins < reward.cost) return state;
+      const t = getTranslator(state.settings.language);
       const newCoins = state.wallet.coins - reward.cost;
       const newTransaction = {
         id: crypto.randomUUID(),
         type: "redeem" as const,
         amount: -reward.cost,
         date: Date.now(),
-        note: `Redeemed: ${reward.title}`,
+        note: t('redeemedNote', { title: reward.title }),
       };
       return {
         ...state,
@@ -131,6 +143,7 @@ const appReducer = (state: AppState, action: Action): AppState => {
 
 interface AppContextType {
   state: AppState;
+  t: (key: keyof (typeof translations)["en"], vars?: Record<string, string | number>) => string;
   startSession: (duration: number) => void;
   updateSession: (data: Partial<Session>) => void;
   completeSession: () => void;
@@ -149,6 +162,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const { toast } = useToast();
+  const t = getTranslator(state.settings.language);
 
   useEffect(() => {
     try {
@@ -175,36 +189,36 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const updateSession = (data: Partial<Session>) => dispatch({ type: "UPDATE_SESSION", payload: data });
   const completeSession = () => {
     dispatch({ type: "COMPLETE_SESSION" });
-    toast({ title: "Session Complete!", description: `You've earned ${state.settings.rewardAmount} coins.`, variant: 'default' });
+    toast({ title: t('sessionComplete'), description: t('sessionCompleteMessage', {rewardAmount: state.settings.rewardAmount}), variant: 'default' });
   };
   const abandonSession = () => {
     dispatch({ type: "ABANDON_SESSION" });
-    toast({ title: "Session Abandoned", description: `You've lost ${state.settings.penaltyAmount} coins.`, variant: 'destructive' });
+    toast({ title: t('sessionAbandoned'), description: t('sessionAbandonedMessage', {penaltyAmount: state.settings.penaltyAmount}), variant: 'destructive' });
   };
   const addReward = (rewardData: Omit<Reward, 'id' | 'createdAt'>) => {
     const newReward: Reward = { ...rewardData, id: crypto.randomUUID(), createdAt: Date.now() };
     dispatch({ type: "ADD_REWARD", payload: newReward });
-    toast({ title: "Reward Added", description: `"${newReward.title}" is now in your store.` });
+    toast({ title: t('rewardAdded'), description: t('rewardAddedMessage', {title: newReward.title}) });
   };
   const updateReward = (reward: Reward) => {
     dispatch({ type: "UPDATE_REWARD", payload: reward });
-     toast({ title: "Reward Updated", description: `"${reward.title}" has been updated.` });
+     toast({ title: t('rewardUpdated'), description: t('rewardUpdatedMessage', {title: reward.title}) });
   };
   const deleteReward = (id: string) => {
     dispatch({ type: "DELETE_REWARD", payload: id });
-    toast({ title: "Reward Deleted" });
+    toast({ title: t('rewardDeleted') });
   };
   const redeemReward = (reward: Reward) => {
     if (state.wallet.coins >= reward.cost) {
       dispatch({ type: "REDEEM_REWARD", payload: reward });
-      toast({ title: "Reward Redeemed!", description: `You've spent ${reward.cost} coins on "${reward.title}".` });
+      toast({ title: t('rewardRedeemed'), description: t('rewardRedeemedMessage', {cost: reward.cost, title: reward.title}) });
     } else {
-      toast({ title: "Not enough coins!", variant: "destructive" });
+      toast({ title: t('notEnoughCoins'), variant: "destructive" });
     }
   };
   const updateSettings = (settings: Partial<Settings>) => {
     dispatch({ type: "UPDATE_SETTINGS", payload: settings });
-    toast({ title: "Settings Updated" });
+    toast({ title: t('settingsUpdated') });
   };
 
   const checkPin = (pin: string) => state.settings.pin === pin;
@@ -212,7 +226,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AppContext.Provider
-      value={{ state, startSession, updateSession, completeSession, abandonSession, addReward, updateReward, deleteReward, redeemReward, updateSettings, checkPin, setPin }}
+      value={{ state, t, startSession, updateSession, completeSession, abandonSession, addReward, updateReward, deleteReward, redeemReward, updateSettings, checkPin, setPin }}
     >
       {children}
     </AppContext.Provider>

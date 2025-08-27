@@ -17,17 +17,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAppContext } from "@/contexts/AppContext";
 
-const navItems = [
-  { href: "/", label: "Home", icon: Home },
-  { href: "/store", label: "Store", icon: Store },
-  { href: "/rewards", label: "My Rewards", icon: Gift },
-  { href: "/history", label: "History", icon: History },
-  { href: "/settings", label: "Settings", icon: Settings },
-];
-
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const { state } = useAppContext();
+  const { state, t } = useAppContext();
+
+  const navItems = [
+    { href: "/", label: t('home'), icon: Home },
+    { href: "/store", label: t('store'), icon: Store },
+    { href: "/rewards", label: t('myRewards'), icon: Gift },
+    { href: "/history", label: t('history'), icon: History },
+    { href: "/settings", label: t('settings'), icon: Settings },
+  ];
 
   return (
     <SidebarProvider>
@@ -37,7 +37,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Coins className="w-8 h-8 text-primary" />
             <div className="flex flex-col">
               <h2 className="text-lg font-semibold tracking-tighter">FocusCraft</h2>
-              {state.hydrated && <span className="text-sm text-muted-foreground -mt-1">{state.wallet.coins} Coins</span>}
+              {state.hydrated && <span className="text-sm text-muted-foreground -mt-1">{state.wallet.coins} {t('coins')}</span>}
             </div>
           </div>
         </SidebarHeader>
@@ -46,16 +46,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {navItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                  <SidebarMenuButton
-                    asChild
-                    isActive={pathname === item.href}
-                    tooltip={item.label}
-                  >
-                    <Link href={item.href}>
+                  <Link href={item.href} legacyBehavior passHref>
+                    <SidebarMenuButton
+                      as="a"
+                      isActive={pathname === item.href}
+                      tooltip={item.label}
+                    >
                       <item.icon />
                       <span>{item.label}</span>
-                    </Link>
-                  </SidebarMenuButton>
+                    </SidebarMenuButton>
+                  </Link>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>

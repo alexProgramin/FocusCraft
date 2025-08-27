@@ -23,9 +23,9 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <AppProvider>
-          <AppLayout>
-            {children}
-          </AppLayout>
+            <AppLayout>
+              {children}
+            </AppLayout>
           <Toaster />
         </AppProvider>
       </body>

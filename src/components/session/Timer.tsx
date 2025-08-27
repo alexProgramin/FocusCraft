@@ -1,5 +1,7 @@
 "use client";
 
+import { useAppContext } from "@/contexts/AppContext";
+
 interface TimerProps {
   duration: number;
   timeRemaining: number;
@@ -14,6 +16,7 @@ const formatTime = (seconds: number) => {
 };
 
 export default function Timer({ duration, timeRemaining, progress, isPaused }: TimerProps) {
+  const { t } = useAppContext();
   const radius = 80;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
@@ -48,7 +51,7 @@ export default function Timer({ duration, timeRemaining, progress, isPaused }: T
           {formatTime(timeRemaining)}
         </span>
         <span className="text-sm text-muted-foreground mt-1">
-          {isPaused ? "Paused" : "Time Remaining"}
+          {isPaused ? t('paused') : t('timeRemaining')}
         </span>
       </div>
     </div>

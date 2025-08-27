@@ -20,7 +20,7 @@ import {
 import { useState } from "react";
 
 export default function RewardsPage() {
-  const { state, deleteReward, updateReward } = useAppContext();
+  const { state, deleteReward, updateReward, t } = useAppContext();
   const { rewards } = state;
   const [editingReward, setEditingReward] = useState<Reward | null>(null);
 
@@ -31,14 +31,14 @@ export default function RewardsPage() {
   return (
     <div className="flex flex-col gap-6">
        <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold tracking-tighter">My Rewards</h1>
+        <h1 className="text-3xl font-bold tracking-tighter">{t('myRewards')}</h1>
         <RewardForm
             reward={editingReward}
             onClose={() => setEditingReward(null)}
         >
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Add Reward
+            {t('addReward')}
           </Button>
         </RewardForm>
       </div>
@@ -47,8 +47,8 @@ export default function RewardsPage() {
         <Card className="flex flex-col items-center justify-center p-12 text-center">
           <CardHeader>
             <Gift className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <CardTitle>No Rewards Yet</CardTitle>
-            <CardDescription>Click "Add Reward" to create your first custom reward.</CardDescription>
+            <CardTitle>{t('noRewardsYet')}</CardTitle>
+            <CardDescription>{t('noRewardsYetMessage')}</CardDescription>
           </CardHeader>
         </Card>
       ) : (
@@ -57,16 +57,16 @@ export default function RewardsPage() {
             <Card key={reward.id} className={`flex flex-col ${!reward.active ? 'opacity-60 bg-muted/50' : ''}`}>
               <CardHeader>
                 <CardTitle>{reward.title}</CardTitle>
-                <CardDescription>{reward.description || "No description."}</CardDescription>
+                <CardDescription>{reward.description || t('noDescription')}</CardDescription>
               </CardHeader>
               <CardContent className="flex-grow">
                 <div className="flex items-center gap-2 font-bold text-lg text-primary">
                     <Coins className="h-5 w-5" />
-                    <span>{reward.cost} Coins</span>
+                    <span>{reward.cost} {t('coins')}</span>
                 </div>
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
-                 <Button variant="ghost" size="icon" onClick={() => handleToggleActive(reward)} aria-label={reward.active ? "Deactivate" : "Activate"}>
+                 <Button variant="ghost" size="icon" onClick={() => handleToggleActive(reward)} aria-label={reward.active ? t('deactivate') : t('activate')}>
                   {reward.active ? <ToggleRight className="h-5 w-5 text-green-500" /> : <ToggleLeft className="h-5 w-5 text-muted-foreground" />}
                 </Button>
                  <RewardForm
@@ -86,18 +86,18 @@ export default function RewardsPage() {
                   </AlertDialogTrigger>
                   <AlertDialogContent>
                     <AlertDialogHeader>
-                      <AlertDialogTitle>Delete Reward</AlertDialogTitle>
+                      <AlertDialogTitle>{t('deleteReward')}</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Are you sure you want to delete "{reward.title}"? This will not affect past transactions.
+                        {t('deleteRewardConfirmation', {title: reward.title})}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
                       <AlertDialogAction
                         className="bg-destructive hover:bg-destructive/90"
                         onClick={() => deleteReward(reward.id)}
                       >
-                        Delete
+                        {t('delete')}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
