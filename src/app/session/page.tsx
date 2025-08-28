@@ -44,10 +44,14 @@ export default function SessionPage() {
     if (session.status !== 'active') {
       router.replace('/');
     }
-
-    setTimeRemaining(session.duration - session.timeElapsed);
-
   }, [session, router]);
+
+  useEffect(() => {
+    if (session) {
+      setTimeRemaining(session.duration - session.timeElapsed);
+    }
+  }, [session?.id, session?.duration, session?.timeElapsed]);
+
 
   const handleTick = useCallback(() => {
     setTimeRemaining(prev => prev - 1);
@@ -60,7 +64,7 @@ export default function SessionPage() {
     } else if (session && timeRemaining > 0) {
       updateSession({ timeElapsed: session.duration - timeRemaining });
     }
-  }, [timeRemaining, session, completeSession, router, updateSession]);
+  }, [timeRemaining]);
 
   useEffect(() => {
     if (session && session.status === 'active' && !isPaused && timeRemaining > 0) {
@@ -138,7 +142,7 @@ export default function SessionPage() {
     router.replace('/');
   };
 
-  const progress = session ? (session.timeElapsed / session.duration) * 100 : 0;
+  const progress = session ? (session.duration > 0 ? (session.timeElapsed / session.duration) * 100 : 0) : 0;
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-4">
