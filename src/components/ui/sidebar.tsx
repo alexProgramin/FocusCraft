@@ -570,8 +570,8 @@ const SidebarMenuButton = React.forwardRef<
       </Comp>
     )
 
-    if (!tooltip || isMobile) {
-      return buttonContent
+    if (isMobile || !tooltip || state === 'expanded') {
+      return buttonContent;
     }
     
     const tooltipText = typeof tooltip === "string" ? tooltip : undefined;
@@ -581,11 +581,9 @@ const SidebarMenuButton = React.forwardRef<
         <TooltipTrigger asChild>
           {buttonContent}
         </TooltipTrigger>
-        {state === 'collapsed' && (
-             <TooltipContent side="right" align="center">
-                {tooltipText}
-             </TooltipContent>
-        )}
+        <TooltipContent side="right" align="center">
+          {tooltipText}
+        </TooltipContent>
       </Tooltip>
     )
   }
