@@ -21,10 +21,6 @@ export default function Home() {
   const [duration, setDuration] = useState(state.settings.defaultDuration);
 
   const handleStartSession = () => {
-    if (state.session) {
-      router.push("/session");
-      return;
-    }
     startSession(duration);
     router.push("/session");
   };
@@ -74,9 +70,9 @@ export default function Home() {
           <CardTitle className="text-3xl font-bold tracking-tighter">
             {state.session ? t('sessionInProgress') : t('startFocusing')}
           </CardTitle>
-          <p className="text-muted-foreground mt-2">
+          <CardDescription className="text-muted-foreground mt-2">
             {state.session ? t('sessionInProgressMessage') : t('startFocusingMessage')}
-          </p>
+          </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-6 w-full max-w-sm">
           {!state.session && (
@@ -91,9 +87,14 @@ export default function Home() {
               </SelectContent>
             </Select>
           )}
-          <Button size="lg" className="w-full text-lg py-7" onClick={handleStartSession}>
+          <Button 
+            size="lg" 
+            className="w-full text-lg py-7" 
+            onClick={handleStartSession}
+            disabled={!!state.session}
+          >
             <Zap className="mr-2 h-5 w-5" />
-            {state.session ? t('resumeSession') : t('startSession')}
+            {t('startSession')}
           </Button>
         </CardContent>
       </Card>

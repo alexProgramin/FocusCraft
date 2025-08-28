@@ -14,10 +14,9 @@ export const translations = {
     yourHardEarnedCurrency: "Your hard-earned currency",
     sessionInProgress: "Session in Progress",
     startFocusing: "Start Focusing",
-    sessionInProgressMessage: "You can go back to your active session.",
+    sessionInProgressMessage: "A session is already active. Complete or abandon it before starting a new one.",
     startFocusingMessage: "Select a duration and start earning coins.",
     selectDuration: "Select duration",
-    resumeSession: "Resume Session",
     startSession: "Start Session",
     // Session Page
     stayFocused: "Stay Focused",
@@ -140,11 +139,11 @@ export const translations = {
     yourHardEarnedCurrency: "Tu moneda ganada con esfuerzo",
     sessionInProgress: "Sesión en Progreso",
     startFocusing: "Empezar a Concentrarse",
-    sessionInProgressMessage: "Puedes volver a tu sesión activa.",
+    sessionInProgressMessage:
+      "Ya hay una sesión activa. Complétala o abandónala antes de empezar una nueva.",
     startFocusingMessage:
       "Selecciona una duración y empieza a ganar monedas.",
     selectDuration: "Seleccionar duración",
-    resumeSession: "Reanudar Sesión",
     startSession: "Empezar Sesión",
     // Session Page
     stayFocused: "Mantente Concentrado",
