@@ -43,28 +43,24 @@ export default function SessionPage() {
 
     if (session.status !== 'active') {
       router.replace('/');
+    } else {
+        setTimeRemaining(session.duration - session.timeElapsed);
     }
   }, [session, router]);
 
-  useEffect(() => {
-    if (session) {
-      setTimeRemaining(session.duration - session.timeElapsed);
-    }
-  }, [session?.id, session?.duration, session?.timeElapsed]);
-
-
   const handleTick = useCallback(() => {
-    setTimeRemaining(prev => prev - 1);
-  }, []);
-
-  useEffect(() => {
-    if(session && timeRemaining <= 0) {
-      completeSession();
-      router.replace('/');
-    } else if (session && timeRemaining > 0) {
-      updateSession({ timeElapsed: session.duration - timeRemaining });
-    }
-  }, [timeRemaining]);
+    setTimeRemaining(prev => {
+        const newTime = prev - 1;
+        if(session) {
+            updateSession({ timeElapsed: session.duration - newTime });
+            if (newTime <= 0) {
+                completeSession();
+                router.replace('/');
+            }
+        }
+        return newTime;
+    });
+  }, [session, updateSession, completeSession, router]);
 
   useEffect(() => {
     if (session && session.status === 'active' && !isPaused && timeRemaining > 0) {
