@@ -185,6 +185,7 @@ interface AppContextType {
   startRewardSession: (reward: Reward) => void;
   updateRewardSession: (data: Partial<RewardSession>) => void;
   endRewardSession: () => void;
+  playNotificationSound: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -193,6 +194,31 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer(appReducer, initialState);
   const { toast } = useToast();
   const t = getTranslator(state.settings.language);
+
+  // Sound generation logic
+  let audioContext: AudioContext | null = null;
+  const playNotificationSound = () => {
+    if (!audioContext) {
+        if (typeof window !== 'undefined' && window.AudioContext) {
+            audioContext = new window.AudioContext();
+        }
+    }
+    if (audioContext) {
+        const oscillator = audioContext.createOscillator();
+        const gainNode = audioContext.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(audioContext.destination);
+
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note
+        gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audio-Context.currentTime + 0.5);
+        oscillator.start(audioContext.currentTime);
+        oscillator.stop(audioContext.currentTime + 0.5);
+    }
+  }
 
   useEffect(() => {
     try {
@@ -269,7 +295,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <AppContext.Provider
-      value={{ state, t, startSession, updateSession, completeSession, abandonSession, addReward, updateReward, deleteReward, redeemReward, updateSettings, checkPin, setPin, resetAppData, startRewardSession, updateRewardSession, endRewardSession }}
+      value={{ state, t, startSession, updateSession, completeSession, abandonSession, addReward, updateReward, deleteReward, redeemReward, updateSettings, checkPin, setPin, resetAppData, startRewardSession, updateRewardSession, endRewardSession, playNotificationSound }}
     >
       {children}
     </AppContext.Provider>

@@ -10,18 +10,12 @@ import { PartyPopper, Clock } from 'lucide-react';
 
 export default function RewardSessionPage() {
   const router = useRouter();
-  const { state, updateRewardSession, endRewardSession, t } = useAppContext();
+  const { state, updateRewardSession, endRewardSession, t, playNotificationSound } = useAppContext();
   const { rewardSession } = state;
 
   const [timeRemaining, setTimeRemaining] = useState(rewardSession?.duration || 0);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  useEffect(() => {
-    // Initialize Audio object
-    audioRef.current = new Audio('/notification.mp3');
-  }, [])
 
   useEffect(() => {
     if (!rewardSession) {
@@ -37,12 +31,10 @@ export default function RewardSessionPage() {
 
   const handleFinish = useCallback(() => {
     if (timerRef.current) clearInterval(timerRef.current);
-    if(audioRef.current) {
-        audioRef.current.play().catch(e => console.error("Error playing sound:", e));
-    }
+    playNotificationSound();
     endRewardSession();
     router.replace('/store');
-  }, [endRewardSession, router]);
+  }, [endRewardSession, router, playNotificationSound]);
 
   const handleTick = useCallback(() => {
     setTimeRemaining(prev => {

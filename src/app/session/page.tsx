@@ -23,24 +23,17 @@ import {
 
 export default function SessionPage() {
   const router = useRouter();
-  const { state, updateSession, completeSession, abandonSession, t } = useAppContext();
+  const { state, updateSession, completeSession, abandonSession, t, playNotificationSound } = useAppContext();
   const { session, settings } = state;
   const { toast } = useToast();
 
-  const [timeRemaining, setTimeRemaining] = useState(session?.duration || 0);
+  const [timeRemaining, setTimeRemaining] = useState(0);
   const [motivationalMessage, setMotivationalMessage] = useState(t('letsGetStarted'));
   const [isPaused, setIsPaused] = useState(false);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pauseRef = useRef<NodeJS.Timeout | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-
-  useEffect(() => {
-    // Initialize Audio object
-    audioRef.current = new Audio('/notification.mp3');
-  }, [])
 
   // Effect to handle navigation and session status checks
   useEffect(() => {
@@ -55,23 +48,25 @@ export default function SessionPage() {
       const remaining = session.duration - session.timeElapsed;
       setTimeRemaining(remaining > 0 ? remaining : 0);
     }
-  }, [session?.id, session?.duration, session?.timeElapsed]);
+  }, [session]);
 
 
   const handleTick = useCallback(() => {
     setTimeRemaining(prev => prev - 1);
   }, []);
 
+  const handleComplete = useCallback(() => {
+    playNotificationSound();
+    completeSession();
+    router.replace('/');
+  }, [completeSession, router, playNotificationSound]);
+
   // Effect for the main timer logic
   useEffect(() => {
     if (isPaused || !session) return;
 
     if (timeRemaining <= 0) {
-      if(audioRef.current) {
-        audioRef.current.play().catch(e => console.error("Error playing sound:", e));
-      }
-      completeSession();
-      router.replace('/');
+      handleComplete();
       return;
     }
 
@@ -80,7 +75,7 @@ export default function SessionPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [timeRemaining, isPaused, session, handleTick, completeSession, router]);
+  }, [timeRemaining, isPaused, session, handleTick, handleComplete]);
 
   // Effect to update the global session state with elapsed time
   useEffect(() => {
@@ -113,7 +108,7 @@ export default function SessionPage() {
     return () => {
       if (messageTimerRef.current) clearInterval(messageTimerRef.current);
     };
-  }, [session?.status, session?.timeElapsed, isPaused, t]);
+  }, [session?.status, session?.timeElapsed, isPaused, t, timeRemaining, session]);
 
   // Effect for strict mode visibility change
   useEffect(() => {
