@@ -28,13 +28,21 @@ export default function RewardsPage() {
     updateReward({ ...reward, active: !reward.active });
   };
   
+  const handleEdit = (reward: Reward) => {
+    setEditingReward(reward);
+  };
+  
+  const handleCloseForm = () => {
+    setEditingReward(null);
+  };
+
   return (
     <div className="flex flex-col gap-6">
        <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tighter">{t('myRewards')}</h1>
         <RewardForm
             reward={editingReward}
-            onClose={() => setEditingReward(null)}
+            onClose={handleCloseForm}
         >
           <Button>
             <Plus className="mr-2 h-4 w-4" />
@@ -70,15 +78,9 @@ export default function RewardsPage() {
                  <Button variant="ghost" size="icon" onClick={() => handleToggleActive(reward)} aria-label={reward.active ? t('deactivate') : t('activate')}>
                   {reward.active ? <ToggleRight className="h-5 w-5 text-green-500" /> : <ToggleLeft className="h-5 w-5 text-muted-foreground" />}
                 </Button>
-                 <RewardForm
-                    reward={reward}
-                    onClose={() => {}}
-                    trigger={
-                        <Button variant="ghost" size="icon">
-                            <Edit className="h-4 w-4" />
-                        </Button>
-                    }
-                 />
+                <Button variant="ghost" size="icon" onClick={() => handleEdit(reward)}>
+                    <Edit className="h-4 w-4" />
+                </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button variant="ghost" size="icon" className="text-destructive hover:text-destructive">

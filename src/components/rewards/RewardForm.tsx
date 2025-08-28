@@ -37,11 +37,10 @@ const formSchema = z.object({
 type RewardFormProps = {
   reward?: Reward | null;
   children?: ReactNode;
-  trigger?: ReactNode;
   onClose: () => void;
 };
 
-export default function RewardForm({ reward, children, trigger, onClose }: RewardFormProps) {
+export default function RewardForm({ reward, children, onClose }: RewardFormProps) {
   const { addReward, updateReward, t } = useAppContext();
   const [isOpen, setIsOpen] = useState(false);
 
@@ -63,11 +62,13 @@ export default function RewardForm({ reward, children, trigger, onClose }: Rewar
       });
       setIsOpen(true);
     } else {
-        form.reset({
-            title: "",
-            description: "",
-            cost: 10,
-        });
+      // This handles resetting the form for the "Add Reward" case
+      // if the dialog is closed without submitting.
+      form.reset({
+        title: "",
+        description: "",
+        cost: 10,
+      });
     }
   }, [reward, form]);
 
@@ -83,16 +84,23 @@ export default function RewardForm({ reward, children, trigger, onClose }: Rewar
   };
 
   const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
     if (!open) {
-      form.reset();
       onClose();
     }
-    setIsOpen(open);
+  };
+  
+  // This allows the parent to open the dialog for adding a new reward
+  const handleTriggerClick = () => {
+    if (!reward) { // only for "add new"
+        form.reset();
+        setIsOpen(true);
+    }
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : <DialogTrigger asChild>{children}</DialogTrigger>}
+      {children && <DialogTrigger asChild onClickCapture={handleTriggerClick}>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{reward ? t('editReward') : t('addNewReward')}</DialogTitle>
