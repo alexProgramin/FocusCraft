@@ -213,44 +213,44 @@ export default function SettingsPage() {
                       />
                   </CardContent>
               </Card>
+
+              <Card className="border-destructive">
+                <CardHeader>
+                    <CardTitle className="text-destructive">{t('dangerZone')}</CardTitle>
+                    <CardDescription>{t('dangerZoneDescription')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                            <Button variant="destructive">
+                                <AlertTriangle className="mr-2 h-4 w-4" />
+                                {t('deleteAllData')}
+                            </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                            <AlertDialogTitle>{t('deleteAllDataConfirmationTitle')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                {t('deleteAllDataConfirmationMessage')}
+                            </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                            <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
+                            <AlertDialogAction
+                                className="bg-destructive hover:bg-destructive/90"
+                                onClick={resetAppData}
+                            >
+                                {t('reset')}
+                            </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </CardContent>
+              </Card>
               
               <Button type="submit">{t('saveSettings')}</Button>
             </form>
           </Form>
-
-          <Card className="border-destructive">
-            <CardHeader>
-                <CardTitle className="text-destructive">{t('dangerZone')}</CardTitle>
-                <CardDescription>{t('dangerZoneDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent>
-                <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                        <Button variant="destructive">
-                            <AlertTriangle className="mr-2 h-4 w-4" />
-                            {t('deleteAllData')}
-                        </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                        <AlertDialogHeader>
-                        <AlertDialogTitle>{t('deleteAllDataConfirmationTitle')}</AlertDialogTitle>
-                        <AlertDialogDescription>
-                            {t('deleteAllDataConfirmationMessage')}
-                        </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                        <AlertDialogCancel>{t('cancel')}</AlertDialogCancel>
-                        <AlertDialogAction
-                            className="bg-destructive hover:bg-destructive/90"
-                            onClick={resetAppData}
-                        >
-                            {t('reset')}
-                        </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
-            </CardContent>
-          </Card>
         
           {!state.settings.pin && <div className="mt-4"><PinDialog hasPin={false} onPinSet={handlePinSet} checkPin={checkPin} setPin={setPin}><Button variant="link">{t('setPinToProtect')}</Button></PinDialog></div>}
         </>
