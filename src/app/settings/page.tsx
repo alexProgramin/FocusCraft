@@ -214,9 +214,11 @@ export default function SettingsPage() {
                   </CardContent>
               </Card>
 
-              <Card className="border-destructive">
+              <Button type="submit">{t('saveSettings')}</Button>
+              
+              <Card>
                 <CardHeader>
-                    <CardTitle className="text-destructive">{t('dangerZone')}</CardTitle>
+                    <CardTitle>{t('dangerZone')}</CardTitle>
                     <CardDescription>{t('dangerZoneDescription')}</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -247,8 +249,7 @@ export default function SettingsPage() {
                     </AlertDialog>
                 </CardContent>
               </Card>
-              
-              <Button type="submit">{t('saveSettings')}</Button>
+
             </form>
           </Form>
         
