@@ -25,6 +25,10 @@ export default function Home() {
     router.push("/session");
   };
 
+  const handleGoToSession = () => {
+    router.push("/session");
+  }
+
   if (!state.hydrated) {
     return (
        <div className="flex flex-col gap-8">
@@ -75,7 +79,7 @@ export default function Home() {
           </CardDescription>
         </CardHeader>
         <CardContent className="flex flex-col items-center gap-6 w-full max-w-sm">
-          {!state.session && (
+          {!state.session ? (
             <Select onValueChange={(value) => setDuration(Number(value))} defaultValue={String(duration)}>
               <SelectTrigger className="w-full">
                 <SelectValue placeholder={t('selectDuration')} />
@@ -86,12 +90,11 @@ export default function Home() {
                 ))}
               </SelectContent>
             </Select>
-          )}
+          ) : null}
           <Button 
             size="lg" 
             className="w-full text-lg py-7" 
-            onClick={handleStartSession}
-            disabled={!!state.session}
+            onClick={state.session ? handleGoToSession : handleStartSession}
           >
             <Zap className="mr-2 h-5 w-5" />
             {state.session ? t('sessionInProgress') : t('startSession')}
