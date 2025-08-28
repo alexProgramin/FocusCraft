@@ -202,7 +202,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
   const updateReward = (reward: Reward) => {
     dispatch({ type: "UPDATE_REWARD", payload: reward });
-     toast({ title: t('rewardUpdated'), description: t('rewardUpdatedMessage', {title: reward.title}) });
+     toast({ title: t('rewardUpdated') });
   };
   const deleteReward = (id: string) => {
     dispatch({ type: "DELETE_REWARD", payload: id });
