@@ -23,11 +23,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { state, t } = useAppContext();
 
   const navItems = [
-    { href: "/", label: t('home'), icon: Home },
-    { href: "/store", label: t('store'), icon: Store },
-    { href: "/rewards", label: t('myRewards'), icon: Gift },
-    { href: "/history", label: t('history'), icon: History },
-    { href: "/settings", label: t('settings'), icon: Settings },
+    { href: "/", label: t('home'), icon: <Home /> },
+    { href: "/store", label: t('store'), icon: <Store /> },
+    { href: "/rewards", label: t('myRewards'), icon: <Gift /> },
+    { href: "/history", label: t('history'), icon: <History /> },
+    { href: "/settings", label: t('settings'), icon: <Settings /> },
   ];
 
   return (
@@ -53,7 +53,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     tooltip={item.label}
                   >
                     <Link href={item.href}>
-                      <item.icon />
+                      {item.icon}
                       <span>{item.label}</span>
                     </Link>
                   </SidebarMenuButton>
