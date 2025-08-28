@@ -3,7 +3,7 @@
 import { useAppContext } from "@/contexts/AppContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Plus, Edit, Trash2, Coins, ToggleLeft, ToggleRight, Gift } from "lucide-react";
+import { Plus, Edit, Trash2, Coins, ToggleLeft, ToggleRight, Gift, Clock } from "lucide-react";
 import RewardForm from "@/components/rewards/RewardForm";
 import { Reward } from "@/lib/types";
 import {
@@ -82,11 +82,17 @@ export default function RewardsPage() {
                 <CardTitle>{reward.title}</CardTitle>
                 <CardDescription>{reward.description || t('noDescription')}</CardDescription>
               </CardHeader>
-              <CardContent className="flex-grow">
+              <CardContent className="flex-grow space-y-2">
                 <div className="flex items-center gap-2 font-bold text-lg text-primary">
                     <Coins className="h-5 w-5" />
                     <span>{reward.cost} {t('coins')}</span>
                 </div>
+                {reward.duration > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4" />
+                        <span>{reward.duration} {t('minutes')}</span>
+                    </div>
+                )}
               </CardContent>
               <CardFooter className="flex justify-end gap-2">
                  <Button variant="ghost" size="icon" onClick={() => handleToggleActive(reward)} aria-label={reward.active ? t('deactivate') : t('activate')}>

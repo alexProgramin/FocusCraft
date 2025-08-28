@@ -3,7 +3,7 @@
 import { useAppContext } from "@/contexts/AppContext";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Coins, ShoppingCart, Info } from "lucide-react";
+import { Coins, ShoppingCart, Info, Clock } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,16 +16,25 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Reward } from "@/lib/types";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function StorePage() {
   const { state, redeemReward, t } = useAppContext();
-  const { wallet, rewards } = state;
+  const { wallet, rewards, rewardSession } = state;
+  const router = useRouter();
 
   const activeRewards = rewards.filter(r => r.active);
 
   const handleRedeem = (reward: Reward) => {
     redeemReward(reward);
   };
+  
+  useEffect(() => {
+    if (rewardSession) {
+      router.push('/reward-session');
+    }
+  }, [rewardSession, router]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -56,7 +65,14 @@ export default function StorePage() {
                     <span>{reward.description || t('noDescription')}</span>
                 </CardDescription>
               </CardHeader>
-              <CardContent className="flex-grow"></CardContent>
+              <CardContent className="flex-grow">
+                 {reward.duration > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Clock className="h-4 w-4" />
+                        <span>{t('duration')}: {reward.duration} {t('minutes')}</span>
+                    </div>
+                )}
+              </CardContent>
               <CardFooter className="flex justify-between items-center">
                 <div className="flex items-center gap-2 font-bold text-lg text-primary">
                   <Coins className="h-5 w-5" />
@@ -65,7 +81,7 @@ export default function StorePage() {
 
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button disabled={wallet.coins < reward.cost}>
+                    <Button disabled={wallet.coins < reward.cost || !!state.session || !!state.rewardSession}>
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       {t('redeem')}
                     </Button>

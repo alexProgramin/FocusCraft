@@ -1,6 +1,6 @@
 "use client";
 
-import { AppState, Reward, Settings, Session } from "@/lib/types";
+import { AppState, Reward, Settings, Session, RewardSession } from "@/lib/types";
 import { useToast } from "@/hooks/use-toast";
 import React, { createContext, useContext, useEffect, useReducer } from "react";
 import { getTranslator, Language, translations } from "@/lib/i18n";
@@ -10,8 +10,8 @@ const APP_STORAGE_KEY = "focuscraft.data";
 const initialState: AppState = {
   wallet: { coins: 50 },
   rewards: [
-    { id: '1', title: '30 min movie time', description: 'Watch any movie for 30 minutes', cost: 25, active: true, createdAt: Date.now() },
-    { id: '2', title: '20 min gaming', description: 'Play your favorite game', cost: 20, active: true, createdAt: Date.now() },
+    { id: '1', title: '30 min movie time', description: 'Watch any movie for 30 minutes', cost: 25, duration: 30, active: true, createdAt: Date.now() },
+    { id: '2', title: '20 min gaming', description: 'Play your favorite game', cost: 20, duration: 20, active: true, createdAt: Date.now() },
   ],
   transactions: [],
   settings: {
@@ -25,6 +25,7 @@ const initialState: AppState = {
     language: 'en',
   },
   session: null,
+  rewardSession: null,
   hydrated: false,
 };
 
@@ -39,7 +40,10 @@ type Action =
   | { type: "DELETE_REWARD"; payload: string }
   | { type: "REDEEM_REWARD"; payload: Reward }
   | { type: "UPDATE_SETTINGS"; payload: Partial<Settings> }
-  | { type: "RESET_APP_DATA" };
+  | { type: "RESET_APP_DATA" }
+  | { type: "START_REWARD_SESSION", payload: Reward }
+  | { type: "UPDATE_REWARD_SESSION", payload: Partial<RewardSession> }
+  | { type: "END_REWARD_SESSION" };
 
 const appReducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
@@ -49,9 +53,9 @@ const appReducer = (state: AppState, action: Action): AppState => {
         if (!payload.settings.language) {
             payload.settings.language = 'en';
         }
-        // Migrate old rewards without descriptions
-        payload.rewards = payload.rewards.map(r => ({...r, description: r.description || ''}))
-        return { ...payload, hydrated: true };
+        // Migrate old rewards without descriptions or duration
+        payload.rewards = payload.rewards.map(r => ({...r, description: r.description || '', duration: r.duration || 0}))
+        return { ...payload, hydrated: true, rewardSession: null }; // Never hydrate a reward session
     case "START_SESSION":
       return {
         ...state,
@@ -135,6 +139,25 @@ const appReducer = (state: AppState, action: Action): AppState => {
         transactions: [newTransaction, ...state.transactions],
       };
     }
+    case "START_REWARD_SESSION":
+        return {
+            ...state,
+            rewardSession: {
+                id: crypto.randomUUID(),
+                reward: action.payload,
+                startTime: Date.now(),
+                duration: action.payload.duration * 60, // minutes to seconds
+                timeElapsed: 0,
+            }
+        }
+    case "UPDATE_REWARD_SESSION":
+        if(!state.rewardSession) return state;
+        return {
+            ...state,
+            rewardSession: { ...state.rewardSession, ...action.payload }
+        }
+    case "END_REWARD_SESSION":
+        return { ...state, rewardSession: null };
     case "UPDATE_SETTINGS":
       return { ...state, settings: { ...state.settings, ...action.payload } };
     case "RESET_APP_DATA":
@@ -159,6 +182,9 @@ interface AppContextType {
   checkPin: (pin: string) => boolean;
   setPin: (pin: string) => void;
   resetAppData: () => void;
+  startRewardSession: (reward: Reward) => void;
+  updateRewardSession: (data: Partial<RewardSession>) => void;
+  endRewardSession: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -216,6 +242,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     if (state.wallet.coins >= reward.cost) {
       dispatch({ type: "REDEEM_REWARD", payload: reward });
       toast({ title: t('rewardRedeemed'), description: t('rewardRedeemedMessage', {cost: reward.cost, title: reward.title}) });
+      if (reward.duration > 0) {
+        startRewardSession(reward);
+      }
     } else {
       toast({ title: t('notEnoughCoins'), variant: "destructive" });
     }
@@ -234,9 +263,13 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     toast({ title: t('dataReset') });
   }
 
+  const startRewardSession = (reward: Reward) => dispatch({type: "START_REWARD_SESSION", payload: reward});
+  const updateRewardSession = (data: Partial<RewardSession>) => dispatch({type: "UPDATE_REWARD_SESSION", payload: data });
+  const endRewardSession = () => dispatch({type: "END_REWARD_SESSION"});
+
   return (
     <AppContext.Provider
-      value={{ state, t, startSession, updateSession, completeSession, abandonSession, addReward, updateReward, deleteReward, redeemReward, updateSettings, checkPin, setPin, resetAppData }}
+      value={{ state, t, startSession, updateSession, completeSession, abandonSession, addReward, updateReward, deleteReward, redeemReward, updateSettings, checkPin, setPin, resetAppData, startRewardSession, updateRewardSession, endRewardSession }}
     >
       {children}
     </AppContext.Provider>

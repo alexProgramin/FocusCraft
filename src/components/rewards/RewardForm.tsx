@@ -32,6 +32,7 @@ const formSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
   description: z.string().optional(),
   cost: z.coerce.number().int().positive("Cost must be a positive number."),
+  duration: z.coerce.number().int().min(0, "Duration must be 0 or more."),
 });
 
 type RewardFormProps = {
@@ -51,6 +52,7 @@ export default function RewardForm({ isOpen, onOpenChange, reward, children, onC
       title: "",
       description: "",
       cost: 10,
+      duration: 0,
     },
   });
   
@@ -61,12 +63,14 @@ export default function RewardForm({ isOpen, onOpenChange, reward, children, onC
                 title: reward.title,
                 description: reward.description,
                 cost: reward.cost,
+                duration: reward.duration || 0,
             });
         } else { // For adding
             form.reset({
                 title: "",
                 description: "",
                 cost: 10,
+                duration: 0,
             });
         }
     }
@@ -135,6 +139,19 @@ export default function RewardForm({ isOpen, onOpenChange, reward, children, onC
                   <FormLabel>{t('costInCoins')}</FormLabel>
                   <FormControl>
                     <Input type="number" placeholder="25" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="duration"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{t('durationInMinutes')}</FormLabel>
+                  <FormControl>
+                    <Input type="number" placeholder="30" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

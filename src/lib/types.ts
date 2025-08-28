@@ -7,6 +7,7 @@ export interface Reward {
   title: string;
   description: string;
   cost: number;
+  duration: number; // in minutes
   active: boolean;
   createdAt: number;
 }
@@ -43,11 +44,20 @@ export interface Session {
   timeElapsed: number; // in seconds
 }
 
+export interface RewardSession {
+    id: string;
+    reward: Reward;
+    startTime: number;
+    duration: number; // in seconds
+    timeElapsed: number; // in seconds
+}
+
 export interface AppState {
   wallet: Wallet;
   rewards: Reward[];
   transactions: Transaction[];
   settings: Settings;
   session: Session | null;
+  rewardSession: RewardSession | null;
   hydrated: boolean;
 }

@@ -3,6 +3,7 @@ export const translations = {
     // General
     coins: "Coins",
     minutes: "minutes",
+    duration: "Duration",
     // Sidebar
     home: "Home",
     store: "Store",
@@ -61,6 +62,7 @@ export const translations = {
     descriptionOptional: "Description (Optional)",
     descriptionPlaceholder: "Describe your reward...",
     costInCoins: "Cost (in coins)",
+    durationInMinutes: "Duration (in minutes, 0 for no timer)",
     saveChanges: "Save Changes",
     // History Page
     transactionHistory: "Transaction History",
@@ -130,11 +132,16 @@ export const translations = {
     completedSessionNote: "Completed {duration} min session",
     abandonedSessionNote: "Abandoned {duration} min session",
     redeemedNote: "Redeemed: {title}",
+    // Reward Session
+    rewardInProgress: "Reward in Progress",
+    enjoyYourReward: "Enjoy your reward!",
+    finishReward: "Finish Reward"
   },
   es: {
     // General
     coins: "Monedas",
     minutes: "minutos",
+    duration: "Duración",
     // Sidebar
     home: "Inicio",
     store: "Tienda",
@@ -195,6 +202,7 @@ export const translations = {
     descriptionOptional: "Descripción (Opcional)",
     descriptionPlaceholder: "Describe tu recompensa...",
     costInCoins: "Coste (en monedas)",
+    durationInMinutes: "Duración (en minutos, 0 si no hay cronómetro)",
     saveChanges: "Guardar Cambios",
     // History Page
     transactionHistory: "Historial de Transacciones",
@@ -267,6 +275,10 @@ export const translations = {
     completedSessionNote: "Sesión de {duration} min completada",
     abandonedSessionNote: "Sesión de {duration} min abandonada",
     redeemedNote: "Canjeado: {title}",
+    // Reward Session
+    rewardInProgress: "Recompensa en Progreso",
+    enjoyYourReward: "¡Disfruta de tu recompensa!",
+    finishReward: "Terminar Recompensa"
   },
 };
 
