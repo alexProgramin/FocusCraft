@@ -23,6 +23,8 @@ export default function RewardsPage() {
   const { state, deleteReward, updateReward, t } = useAppContext();
   const { rewards } = state;
   const [editingReward, setEditingReward] = useState<Reward | null>(null);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+
 
   const handleToggleActive = (reward: Reward) => {
     updateReward({ ...reward, active: !reward.active });
@@ -30,10 +32,20 @@ export default function RewardsPage() {
   
   const handleEdit = (reward: Reward) => {
     setEditingReward(reward);
+    setIsFormOpen(true);
   };
+
+  const handleAddNew = () => {
+    setEditingReward(null);
+    setIsFormOpen(true);
+  }
   
   const handleCloseForm = () => {
-    setEditingReward(null);
+    setIsFormOpen(false);
+    // Give a bit of time for the close animation to finish before resetting the reward
+    setTimeout(() => {
+        setEditingReward(null);
+    }, 150)
   };
 
   return (
@@ -41,10 +53,12 @@ export default function RewardsPage() {
        <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold tracking-tighter">{t('myRewards')}</h1>
         <RewardForm
+            isOpen={isFormOpen}
+            onOpenChange={setIsFormOpen}
             reward={editingReward}
             onClose={handleCloseForm}
         >
-          <Button>
+          <Button onClick={handleAddNew}>
             <Plus className="mr-2 h-4 w-4" />
             <span className="hidden md:inline">{t('addReward')}</span>
             <span className="inline md:hidden">{t('addReward')}</span>

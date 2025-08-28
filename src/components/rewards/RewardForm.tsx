@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/form";
 import { useAppContext } from "@/contexts/AppContext";
 import type { Reward } from "@/lib/types";
-import { ReactNode, useState, useEffect } from "react";
+import { ReactNode, useEffect } from "react";
 
 const formSchema = z.object({
   title: z.string().min(3, "Title must be at least 3 characters."),
@@ -35,15 +35,16 @@ const formSchema = z.object({
 });
 
 type RewardFormProps = {
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
   reward?: Reward | null;
   children?: ReactNode;
   onClose: () => void;
 };
 
-export default function RewardForm({ reward, children, onClose }: RewardFormProps) {
+export default function RewardForm({ isOpen, onOpenChange, reward, children, onClose }: RewardFormProps) {
   const { addReward, updateReward, t } = useAppContext();
-  const [isOpen, setIsOpen] = useState(false);
-
+  
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,15 +55,23 @@ export default function RewardForm({ reward, children, onClose }: RewardFormProp
   });
   
   useEffect(() => {
-    if (reward) { // For editing
-      form.reset({
-        title: reward.title,
-        description: reward.description,
-        cost: reward.cost,
-      });
-      setIsOpen(true);
+    if (isOpen) {
+        if (reward) { // For editing
+            form.reset({
+                title: reward.title,
+                description: reward.description,
+                cost: reward.cost,
+            });
+        } else { // For adding
+            form.reset({
+                title: "",
+                description: "",
+                cost: 10,
+            });
+        }
     }
-  }, [reward, form]);
+  }, [isOpen, reward, form]);
+
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (reward) {
@@ -70,32 +79,19 @@ export default function RewardForm({ reward, children, onClose }: RewardFormProp
     } else {
       addReward({ ...values, active: true });
     }
-    form.reset({ title: "", description: "", cost: 10 });
-    setIsOpen(false);
     onClose();
   };
 
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-      onClose(); // This now correctly handles closing from anywhere
+  const handleDialogClose = (open: boolean) => {
+    if(!open) {
+      onClose();
     }
-  };
-  
-  const handleTriggerClick = () => {
-    if (!reward) { // Only for "add new"
-        form.reset({
-            title: "",
-            description: "",
-            cost: 10,
-        });
-        setIsOpen(true);
-    }
+    onOpenChange(open);
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      {children && <DialogTrigger asChild onClickCapture={handleTriggerClick}>{children}</DialogTrigger>}
+    <Dialog open={isOpen} onOpenChange={handleDialogClose}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{reward ? t('editReward') : t('addNewReward')}</DialogTitle>
