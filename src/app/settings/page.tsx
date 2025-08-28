@@ -217,7 +217,7 @@ export default function SettingsPage() {
               <Button type="submit">{t('saveSettings')}</Button>
             </form>
           </Form>
-        
+
           <Card className="border-destructive">
             <CardHeader>
                 <CardTitle className="text-destructive">{t('dangerZone')}</CardTitle>
@@ -251,7 +251,7 @@ export default function SettingsPage() {
                 </AlertDialog>
             </CardContent>
           </Card>
-
+        
           {!state.settings.pin && <div className="mt-4"><PinDialog hasPin={false} onPinSet={handlePinSet} checkPin={checkPin} setPin={setPin}><Button variant="link">{t('setPinToProtect')}</Button></PinDialog></div>}
         </>
       )}
