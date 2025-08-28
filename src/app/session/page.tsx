@@ -27,7 +27,7 @@ export default function SessionPage() {
   const { session, settings } = state;
   const { toast } = useToast();
 
-  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(session?.duration || 0);
   const [motivationalMessage, setMotivationalMessage] = useState(t('letsGetStarted'));
   const [isPaused, setIsPaused] = useState(false);
 
@@ -50,20 +50,22 @@ export default function SessionPage() {
     }
   }, [session]);
 
-
-  const handleTick = useCallback(() => {
-    setTimeRemaining(prev => prev - 1);
-  }, []);
-
   const handleComplete = useCallback(() => {
     playNotificationSound();
     completeSession();
     router.replace('/');
   }, [completeSession, router, playNotificationSound]);
 
+  const handleTick = useCallback(() => {
+    setTimeRemaining(prev => prev - 1);
+  }, []);
+
   // Effect for the main timer logic
   useEffect(() => {
     if (isPaused || !session) return;
+    
+    // Do not start the timer if timeRemaining hasn't been initialized from the session yet
+    if (timeRemaining === 0 && session.timeElapsed === 0) return;
 
     if (timeRemaining <= 0) {
       handleComplete();
