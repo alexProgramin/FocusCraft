@@ -54,21 +54,13 @@ export default function RewardForm({ reward, children, onClose }: RewardFormProp
   });
   
   useEffect(() => {
-    if (reward) {
+    if (reward) { // For editing
       form.reset({
         title: reward.title,
         description: reward.description,
         cost: reward.cost,
       });
       setIsOpen(true);
-    } else {
-      // This handles resetting the form for the "Add Reward" case
-      // if the dialog is closed without submitting.
-      form.reset({
-        title: "",
-        description: "",
-        cost: 10,
-      });
     }
   }, [reward, form]);
 
@@ -78,7 +70,7 @@ export default function RewardForm({ reward, children, onClose }: RewardFormProp
     } else {
       addReward({ ...values, active: true });
     }
-    form.reset();
+    form.reset({ title: "", description: "", cost: 10 });
     setIsOpen(false);
     onClose();
   };
@@ -86,14 +78,17 @@ export default function RewardForm({ reward, children, onClose }: RewardFormProp
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
-      onClose();
+      onClose(); // This now correctly handles closing from anywhere
     }
   };
   
-  // This allows the parent to open the dialog for adding a new reward
   const handleTriggerClick = () => {
-    if (!reward) { // only for "add new"
-        form.reset();
+    if (!reward) { // Only for "add new"
+        form.reset({
+            title: "",
+            description: "",
+            cost: 10,
+        });
         setIsOpen(true);
     }
   }
