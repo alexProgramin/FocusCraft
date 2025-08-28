@@ -214,7 +214,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         oscillator.frequency.setValueAtTime(880, audioContext.currentTime); // A5 note
         gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
 
-        gainNode.gain.exponentialRampToValueAtTime(0.001, audio-Context.currentTime + 0.5);
+        gainNode.gain.exponentialRampToValueAtTime(0.001, audioContext.currentTime + 0.5);
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + 0.5);
     }
@@ -309,3 +309,5 @@ export const useAppContext = () => {
   }
   return context;
 };
+
+    
