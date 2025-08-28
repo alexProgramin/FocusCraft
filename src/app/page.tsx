@@ -94,7 +94,7 @@ export default function Home() {
             disabled={!!state.session}
           >
             <Zap className="mr-2 h-5 w-5" />
-            {t('startSession')}
+            {state.session ? t('sessionInProgress') : t('startSession')}
           </Button>
         </CardContent>
       </Card>

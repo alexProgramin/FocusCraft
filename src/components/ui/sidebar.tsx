@@ -545,12 +545,12 @@ const SidebarMenuButton = React.forwardRef<
 >(
   (
     {
-      asChild,
+      className,
+      asChild = false,
       isActive,
       variant,
       size,
       tooltip,
-      className,
       children,
       ...props
     },
@@ -563,7 +563,7 @@ const SidebarMenuButton = React.forwardRef<
       <Comp
         ref={ref}
         data-sidebar="menu-button"
-        data-active={isActive}
+        data-active={isActive ? "true" : "false"}
         className={cn(sidebarMenuButtonVariants({ variant, size, className }))}
         {...props}
       >
