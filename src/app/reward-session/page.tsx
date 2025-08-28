@@ -16,6 +16,12 @@ export default function RewardSessionPage() {
   const [timeRemaining, setTimeRemaining] = useState(rewardSession?.duration || 0);
 
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  useEffect(() => {
+    // Initialize Audio object
+    audioRef.current = new Audio('/notification.mp3');
+  }, [])
 
   useEffect(() => {
     if (!rewardSession) {
@@ -29,17 +35,24 @@ export default function RewardSessionPage() {
     }
   }, [rewardSession]);
 
+  const handleFinish = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if(audioRef.current) {
+        audioRef.current.play().catch(e => console.error("Error playing sound:", e));
+    }
+    endRewardSession();
+    router.replace('/store');
+  }, [endRewardSession, router]);
+
   const handleTick = useCallback(() => {
     setTimeRemaining(prev => {
         if(prev <= 1) {
-            if(timerRef.current) clearInterval(timerRef.current);
-            endRewardSession();
-            router.replace('/store');
+            handleFinish();
             return 0;
         }
         return prev - 1;
     });
-  }, [endRewardSession, router]);
+  }, [handleFinish]);
 
   useEffect(() => {
     if (timeRemaining <= 0) {
@@ -66,12 +79,6 @@ export default function RewardSessionPage() {
   if (!rewardSession) {
     return null; // Or a loading spinner
   }
-
-  const handleFinish = () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    endRewardSession();
-    router.replace('/store');
-  };
 
   const progress = rewardSession ? (rewardSession.duration > 0 ? ((rewardSession.duration - timeRemaining) / rewardSession.duration) * 100 : 0) : 0;
 

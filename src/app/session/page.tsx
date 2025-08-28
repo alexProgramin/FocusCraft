@@ -34,6 +34,13 @@ export default function SessionPage() {
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pauseRef = useRef<NodeJS.Timeout | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+
+  useEffect(() => {
+    // Initialize Audio object
+    audioRef.current = new Audio('/notification.mp3');
+  }, [])
 
   // Effect to handle navigation and session status checks
   useEffect(() => {
@@ -45,7 +52,8 @@ export default function SessionPage() {
   // Effect to initialize or sync timeRemaining when session changes
   useEffect(() => {
     if (session) {
-      setTimeRemaining(session.duration - session.timeElapsed);
+      const remaining = session.duration - session.timeElapsed;
+      setTimeRemaining(remaining > 0 ? remaining : 0);
     }
   }, [session?.id, session?.duration, session?.timeElapsed]);
 
@@ -59,6 +67,9 @@ export default function SessionPage() {
     if (isPaused || !session) return;
 
     if (timeRemaining <= 0) {
+      if(audioRef.current) {
+        audioRef.current.play().catch(e => console.error("Error playing sound:", e));
+      }
       completeSession();
       router.replace('/');
       return;
@@ -73,13 +84,13 @@ export default function SessionPage() {
 
   // Effect to update the global session state with elapsed time
   useEffect(() => {
-    if (session) {
+    if (session && !isPaused) {
         const newTimeElapsed = session.duration - timeRemaining;
-        if (session.timeElapsed !== newTimeElapsed) {
+        if (session.timeElapsed !== newTimeElapsed && newTimeElapsed > 0) {
             updateSession({ timeElapsed: newTimeElapsed });
         }
     }
-  }, [timeRemaining, session, updateSession]);
+  }, [timeRemaining, session, updateSession, isPaused]);
 
 
   // Effect for fetching motivational messages
@@ -102,7 +113,7 @@ export default function SessionPage() {
     return () => {
       if (messageTimerRef.current) clearInterval(messageTimerRef.current);
     };
-  }, [session, timeRemaining, isPaused]);
+  }, [session?.status, session?.timeElapsed, isPaused, t]);
 
   // Effect for strict mode visibility change
   useEffect(() => {
@@ -148,7 +159,7 @@ export default function SessionPage() {
     router.replace('/');
   };
 
-  const progress = session ? (session.duration > 0 ? (session.timeElapsed / session.duration) * 100 : 0) : 0;
+  const progress = session ? (session.duration > 0 ? ((session.duration - timeRemaining) / session.duration) * 100 : 0) : 0;
 
   return (
     <div className="flex flex-col items-center justify-center h-full text-center p-4">
