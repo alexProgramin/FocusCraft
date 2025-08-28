@@ -214,8 +214,6 @@ export default function SettingsPage() {
                   </CardContent>
               </Card>
 
-              <Button type="submit">{t('saveSettings')}</Button>
-              
               <Card>
                 <CardHeader>
                     <CardTitle>{t('dangerZone')}</CardTitle>
@@ -249,6 +247,8 @@ export default function SettingsPage() {
                     </AlertDialog>
                 </CardContent>
               </Card>
+
+              <Button type="submit">{t('saveSettings')}</Button>
 
             </form>
           </Form>
