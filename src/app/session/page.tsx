@@ -35,45 +35,54 @@ export default function SessionPage() {
   const messageTimerRef = useRef<NodeJS.Timeout | null>(null);
   const pauseRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Effect to handle navigation and session status checks
   useEffect(() => {
-    if (!session) {
+    if (!session || session.status !== 'active') {
+      router.replace('/');
+    }
+  }, [session, router]);
+  
+  // Effect to initialize or sync timeRemaining when session changes
+  useEffect(() => {
+    if (session) {
+      setTimeRemaining(session.duration - session.timeElapsed);
+    }
+  }, [session?.id, session?.duration, session?.timeElapsed]);
+
+
+  const handleTick = useCallback(() => {
+    setTimeRemaining(prev => prev - 1);
+  }, []);
+
+  // Effect for the main timer logic
+  useEffect(() => {
+    if (isPaused || !session) return;
+
+    if (timeRemaining <= 0) {
+      completeSession();
       router.replace('/');
       return;
     }
 
-    if (session.status !== 'active') {
-      router.replace('/');
-    } else {
-        setTimeRemaining(session.duration - session.timeElapsed);
-    }
-  }, [session, router]);
+    timerRef.current = setInterval(handleTick, 1000);
 
-  const handleTick = useCallback(() => {
-    setTimeRemaining(prev => {
-        const newTime = prev - 1;
-        if(session) {
-            updateSession({ timeElapsed: session.duration - newTime });
-            if (newTime <= 0) {
-                completeSession();
-                router.replace('/');
-            }
-        }
-        return newTime;
-    });
-  }, [session, updateSession, completeSession, router]);
-
-  useEffect(() => {
-    if (session && session.status === 'active' && !isPaused && timeRemaining > 0) {
-      timerRef.current = setInterval(handleTick, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [session, isPaused, handleTick, timeRemaining]);
+  }, [timeRemaining, isPaused, session, handleTick, completeSession, router]);
+
+  // Effect to update the global session state with elapsed time
+  useEffect(() => {
+    if (session) {
+        const newTimeElapsed = session.duration - timeRemaining;
+        if (session.timeElapsed !== newTimeElapsed) {
+            updateSession({ timeElapsed: newTimeElapsed });
+        }
+    }
+  }, [timeRemaining, session, updateSession]);
 
 
+  // Effect for fetching motivational messages
   useEffect(() => {
     const getMessage = async () => {
       if (!session) return;
@@ -95,6 +104,7 @@ export default function SessionPage() {
     };
   }, [session, timeRemaining, isPaused]);
 
+  // Effect for strict mode visibility change
   useEffect(() => {
     const handleVisibilityChange = () => {
       if (!settings.strictMode || !session) return;
