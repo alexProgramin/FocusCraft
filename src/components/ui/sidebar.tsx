@@ -551,6 +551,7 @@ const SidebarMenuButton = React.forwardRef<
       size,
       tooltip,
       className,
+      children,
       ...props
     },
     ref
@@ -562,21 +563,21 @@ const SidebarMenuButton = React.forwardRef<
       <Comp
         ref={ref}
         data-sidebar="menu-button"
-        data-active={isActive ? 'true' : 'false'}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+        data-active={isActive}
+        className={cn(sidebarMenuButtonVariants({ variant, size, className }))}
         {...props}
-      />
+      >
+        {children}
+      </Comp>
     )
 
     if (!tooltip) {
       return button
     }
 
-    if (typeof tooltip === "string") {
-      tooltip = {
-        children: tooltip,
-      }
-    }
+    const tooltipContent = typeof tooltip === "string" ? {
+      children: tooltip
+    } : tooltip;
 
     return (
       <Tooltip>
@@ -585,7 +586,7 @@ const SidebarMenuButton = React.forwardRef<
           side="right"
           align="center"
           hidden={state !== "collapsed" || isMobile}
-          {...tooltip}
+          {...tooltipContent}
         />
       </Tooltip>
     )
