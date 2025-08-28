@@ -97,6 +97,12 @@ export const translations = {
     languageDescription: "Choose the application language.",
     english: "English",
     spanish: "Spanish",
+    dangerZone: "Danger Zone",
+    dangerZoneDescription: "These actions are permanent and cannot be undone.",
+    deleteAllData: "Delete All App Data",
+    deleteAllDataConfirmationTitle: "Are you absolutely sure?",
+    deleteAllDataConfirmationMessage: "This will permanently delete all your data, including coins, rewards, and history. This action cannot be undone.",
+    reset: "Reset",
     // Toasts
     sessionComplete: "Session Complete!",
     sessionCompleteMessage: "You've earned {rewardAmount} coins.",
@@ -119,6 +125,7 @@ export const translations = {
     sessionPausedToastTitle: "Session Paused",
     sessionPausedToastDescription:
       "Come back soon or the session will be abandoned.",
+    dataReset: "Application data has been reset.",
     // Transaction notes
     completedSessionNote: "Completed {duration} min session",
     abandonedSessionNote: "Abandoned {duration} min session",
@@ -227,6 +234,12 @@ export const translations = {
     languageDescription: "Elige el idioma de la aplicación.",
     english: "Inglés",
     spanish: "Español",
+    dangerZone: "Zona de Peligro",
+    dangerZoneDescription: "Estas acciones son permanentes y no se pueden deshacer.",
+    deleteAllData: "Borrar todos los datos de la aplicación",
+    deleteAllDataConfirmationTitle: "¿Estás absolutamente seguro?",
+    deleteAllDataConfirmationMessage: "Esto eliminará permanentemente todos tus datos, incluyendo monedas, recompensas e historial. Esta acción no se puede deshacer.",
+    reset: "Restablecer",
     // Toasts
     sessionComplete: "¡Sesión Completada!",
     sessionCompleteMessage: "Has ganado {rewardAmount} monedas.",
@@ -249,6 +262,7 @@ export const translations = {
     sessionPausedToastTitle: "Sesión en Pausa",
     sessionPausedToastDescription:
       "Vuelve pronto o la sesión será abandonada.",
+    dataReset: "Los datos de la aplicación se han restablecido.",
     // Transaction notes
     completedSessionNote: "Sesión de {duration} min completada",
     abandonedSessionNote: "Sesión de {duration} min abandonada",

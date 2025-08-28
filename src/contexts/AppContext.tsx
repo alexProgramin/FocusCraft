@@ -38,7 +38,8 @@ type Action =
   | { type: "UPDATE_REWARD"; payload: Reward }
   | { type: "DELETE_REWARD"; payload: string }
   | { type: "REDEEM_REWARD"; payload: Reward }
-  | { type: "UPDATE_SETTINGS"; payload: Partial<Settings> };
+  | { type: "UPDATE_SETTINGS"; payload: Partial<Settings> }
+  | { type: "RESET_APP_DATA" };
 
 const appReducer = (state: AppState, action: Action): AppState => {
   switch (action.type) {
@@ -136,6 +137,8 @@ const appReducer = (state: AppState, action: Action): AppState => {
     }
     case "UPDATE_SETTINGS":
       return { ...state, settings: { ...state.settings, ...action.payload } };
+    case "RESET_APP_DATA":
+      return { ...initialState, hydrated: true };
     default:
       return state;
   }
@@ -155,6 +158,7 @@ interface AppContextType {
   updateSettings: (settings: Partial<Settings>) => void;
   checkPin: (pin: string) => boolean;
   setPin: (pin: string) => void;
+  resetAppData: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -202,7 +206,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
   const updateReward = (reward: Reward) => {
     dispatch({ type: "UPDATE_REWARD", payload: reward });
-     toast({ title: t('rewardUpdated') });
+     toast({ title: t('rewardUpdated'), description: t('rewardUpdatedMessage', {title: reward.title}) });
   };
   const deleteReward = (id: string) => {
     dispatch({ type: "DELETE_REWARD", payload: id });
@@ -224,9 +228,15 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const checkPin = (pin: string) => state.settings.pin === pin;
   const setPin = (pin: string) => dispatch({ type: "UPDATE_SETTINGS", payload: { pin }});
 
+  const resetAppData = () => {
+    dispatch({ type: "RESET_APP_DATA" });
+    localStorage.removeItem(APP_STORAGE_KEY);
+    toast({ title: t('dataReset') });
+  }
+
   return (
     <AppContext.Provider
-      value={{ state, t, startSession, updateSession, completeSession, abandonSession, addReward, updateReward, deleteReward, redeemReward, updateSettings, checkPin, setPin }}
+      value={{ state, t, startSession, updateSession, completeSession, abandonSession, addReward, updateReward, deleteReward, redeemReward, updateSettings, checkPin, setPin, resetAppData }}
     >
       {children}
     </AppContext.Provider>
