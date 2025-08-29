@@ -37,17 +37,18 @@ export default function RewardSessionPage() {
   }, [endRewardSession, router, playNotificationSound]);
 
   const handleTick = useCallback(() => {
-    setTimeRemaining(prev => {
-        if(prev <= 1) {
-            handleFinish();
-            return 0;
-        }
-        return prev - 1;
-    });
-  }, [handleFinish]);
+    setTimeRemaining(prev => prev - 1);
+  }, []);
+  
+  useEffect(() => {
+    if (timeRemaining <= 0 && rewardSession) {
+      handleFinish();
+    }
+  }, [timeRemaining, rewardSession, handleFinish]);
+
 
   useEffect(() => {
-    if (timeRemaining <= 0) {
+    if (timeRemaining <= 0 || !rewardSession) {
       return;
     }
 
@@ -56,7 +57,7 @@ export default function RewardSessionPage() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [timeRemaining, handleTick]);
+  }, [timeRemaining, handleTick, rewardSession]);
 
   useEffect(() => {
     if (rewardSession) {
