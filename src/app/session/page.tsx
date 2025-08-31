@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { MotivationalMessageInput } from '@/ai/flows/motivational-messages';
 
 export default function SessionPage() {
   const router = useRouter();
@@ -61,10 +62,9 @@ export default function SessionPage() {
 
   // Effect for the main timer logic
   useEffect(() => {
-    if (isPaused || !session) return;
-    
-    // Do not start the timer if timeRemaining hasn't been initialized from the session yet
-    if (timeRemaining === 0 && session.timeElapsed === 0 && session.duration > 0) return;
+    if (isPaused || !session || (timeRemaining === 0 && session.timeElapsed === 0 && session.duration > 0)) {
+        return;
+    }
 
     if (timeRemaining <= 0) {
       handleComplete();
@@ -96,7 +96,8 @@ export default function SessionPage() {
       const progress = (session.timeElapsed / session.duration) * 100;
       
       try {
-        const response = await fetch('/api/motivational-message', {
+        // IMPORTANT: Replace with your deployed Genkit backend URL
+        const response = await fetch('https://tu-backend-de-genkit.com/api/motivational-message', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -115,6 +116,7 @@ export default function SessionPage() {
         setMotivationalMessage(data.message);
       } catch (error) {
         console.error(error);
+        // Fallback message
         setMotivationalMessage("You're doing great, keep it up!");
       }
     };
