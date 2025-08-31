@@ -7,7 +7,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertTriangle } from 'lucide-react';
 import Timer from '@/components/session/Timer';
-import { fetchMotivationalMessage } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import {
   AlertDialog,
@@ -65,7 +64,7 @@ export default function SessionPage() {
     if (isPaused || !session) return;
     
     // Do not start the timer if timeRemaining hasn't been initialized from the session yet
-    if (timeRemaining === 0 && session.timeElapsed === 0) return;
+    if (timeRemaining === 0 && session.timeElapsed === 0 && session.duration > 0) return;
 
     if (timeRemaining <= 0) {
       handleComplete();
@@ -95,11 +94,29 @@ export default function SessionPage() {
     const getMessage = async () => {
       if (!session) return;
       const progress = (session.timeElapsed / session.duration) * 100;
-      const message = await fetchMotivationalMessage({
-        sessionProgress: progress,
-        timeRemaining: timeRemaining,
-      });
-      setMotivationalMessage(message);
+      
+      try {
+        const response = await fetch('/api/motivational-message', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            sessionProgress: progress,
+            timeRemaining: timeRemaining,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch motivational message');
+        }
+
+        const data = await response.json();
+        setMotivationalMessage(data.message);
+      } catch (error) {
+        console.error(error);
+        setMotivationalMessage("You're doing great, keep it up!");
+      }
     };
 
     if (session && session.status === 'active' && !isPaused) {
@@ -110,7 +127,7 @@ export default function SessionPage() {
     return () => {
       if (messageTimerRef.current) clearInterval(messageTimerRef.current);
     };
-  }, [session?.status, session?.timeElapsed, isPaused, t, timeRemaining, session]);
+  }, [session, timeRemaining, isPaused]);
 
   // Effect for strict mode visibility change
   useEffect(() => {
